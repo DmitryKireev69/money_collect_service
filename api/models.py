@@ -17,7 +17,11 @@ class Collect(models.Model):
         BUSINESS = 'business', 'Бизнес'
         OTHER = 'other', 'Другое'
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, verbose_name='Идентификатор сбора')
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='Идентификатор сбора')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -26,21 +30,13 @@ class Collect(models.Model):
     )
     title = models.CharField(
         max_length=200,
-        verbose_name='Название сбора'
-    )
+        verbose_name='Название сбора')
     occasion = models.CharField(
         max_length=50,
         choices=Occasion.choices,
         verbose_name='Повод сбора'
     )
-    description = models.TextField(
-        verbose_name='Описание сбора'
-    )
-    is_unlimited = models.BooleanField(
-        default=False,
-        verbose_name='Бесконечный сбор',
-        help_text='Отметьте, если сбор без ограничения по сумме'
-    )
+    description = models.TextField(verbose_name='Описание сбора')
     target_amount_cents = models.BigIntegerField(
         null=True,
         blank=True,
@@ -61,9 +57,7 @@ class Collect(models.Model):
         blank=True,
         verbose_name='Обложка сбора'
     )
-    end_datetime = models.DateTimeField(
-        verbose_name='Дата и время завершения сбора'
-    )
+    end_datetime = models.DateTimeField(verbose_name='Дата и время завершения сбора')
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата создания'
@@ -89,10 +83,6 @@ class Collect(models.Model):
 
     def __str__(self):
        return self.title
-
-    def is_unlimited(self):
-        """Проверяет, является ли сбор бесконечным"""
-        return self.target_amount_cents is None
 
 
 
