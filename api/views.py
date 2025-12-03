@@ -1,10 +1,10 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from .models import Collect, Payment
 from .serializers import (
     CollectSimpleSerializer,
     PaymentSimpleSerializer
 )
-
+from rest_framework.response import Response
 
 class CollectViewSet(viewsets.ModelViewSet):
     """
@@ -13,7 +13,9 @@ class CollectViewSet(viewsets.ModelViewSet):
     queryset = Collect.objects.all()
     serializer_class = CollectSimpleSerializer
 
-class PaymentViewSet(viewsets.ModelViewSet):
+
+class PaymentViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     ViewSet для работы с групповыми сборами
     """
