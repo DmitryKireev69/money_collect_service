@@ -106,3 +106,6 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "0.0.1",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
