@@ -89,13 +89,6 @@ class Collect(models.Model):
 class Payment(models.Model):
     """Модель платежа для сбора"""
 
-    class Status(models.TextChoices):
-        PENDING = 'pending', 'Ожидает оплаты'
-        SUCCESSFUL = 'successful', 'Успешный'
-        FAILED = 'failed', 'Неуспешный'
-        REFUNDED = 'refunded', 'Возвращен'
-
-
     class PaymentMethod(models.TextChoices):
         CARD = 'card', 'Банковская карта'
         SBP = 'sbp', 'СБП'
@@ -130,12 +123,6 @@ class Payment(models.Model):
         choices=PaymentMethod.choices,
         verbose_name='Способ оплаты'
     )
-    status = models.CharField(
-        max_length=20,
-        choices=Status.choices,
-        default=Status.PENDING,
-        verbose_name='Статус платежа'
-    )
     comment = models.TextField(
         blank=True,
         null=True,
@@ -161,7 +148,6 @@ class Payment(models.Model):
         indexes = [
             models.Index(fields=['collect', 'created_at']),
             models.Index(fields=['user', 'created_at']),
-            models.Index(fields=['status', 'created_at']),
             models.Index(fields=['payment_method']),
         ]
 
