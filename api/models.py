@@ -1,8 +1,11 @@
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.contrib.auth.models import User
+from django.db.models import F
+from django.utils import timezone
 
 import uuid
+
 
 
 class Collect(models.Model):
@@ -153,3 +156,21 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Платеж {self.id}"
+
+    def save(self, *args, **kwargs):
+        """Переопределяем save для автоматического обновления сбора при пополнении"""
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+
+            # Увеличиваем сумму сбора
+            Collect.objects.filter(id=self.collect_id).update(
+                collected_amount_cents=F('collected_amount_cents') + int(self.amount * 100),
+                updated_at=timezone.now()
+            )
+
+            # Увеличиваем счетчик донатеров (если пользователь есть)
+            if self.user_id:
+                Collect.objects.filter(id=self.collect_id).update(
+                    contributors_count=F('contributors_count') + 1,
+                    updated_at=timezone.now()
+                )
