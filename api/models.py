@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.db.models import F
 from django.utils import timezone
 from django.core.cache import cache
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from .tasks import send_email
 
 import uuid
 
@@ -185,3 +188,36 @@ class Payment(models.Model):
         """При удалении очищаем весь кэш"""
         cache.clear()
         super().delete(*args, **kwargs)
+
+
+@receiver(post_save, sender='api.Collect')
+def send_collect_email(sender, instance, created, **kwargs):
+    """Отправка email при создании сбора"""
+    if created and instance.author.email:
+        send_email.delay(
+            subject=f'Сбор "{instance.title}" создан',
+            message=f'Ваш сбор "{instance.title}" успешно создан.',
+            recipient=instance.author.email
+        )
+
+
+@receiver(post_save, sender='api.Payment')
+def send_payment_email(sender, instance, created, **kwargs):
+    """Отправка email при создании платежа"""
+    if created:
+        # Email донатеру
+        if instance.user and instance.user.email:
+            send_email.delay(
+                subject=f'Платёж для сбора "{instance.collect.title}"',
+                message=f'Ваш платёж {instance.amount} руб. создан.',
+                recipient=instance.user.email
+            )
+
+        # Email автору сбора
+        if instance.collect.author.email and instance.user != instance.collect.author:
+            donor_name = instance.user.username if instance.user else 'Аноним'
+            send_email.delay(
+                subject=f'Новый платёж для сбора "{instance.collect.title}"',
+                message=f'{donor_name} перевел {instance.amount} руб.',
+                recipient=instance.collect.author.email
+            )
