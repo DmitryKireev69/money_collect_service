@@ -3,6 +3,7 @@ from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.db.models import F
 from django.utils import timezone
+from django.core.cache import cache
 
 import uuid
 
@@ -87,6 +88,10 @@ class Collect(models.Model):
     def __str__(self):
        return self.title
 
+    def save(self, *args, **kwargs):
+        """При сохранении очищаем весь кэш"""
+        cache.clear()
+        super().save(*args, **kwargs)
 
 
 class Payment(models.Model):
@@ -160,6 +165,7 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         """Переопределяем save для автоматического обновления сбора при пополнении"""
         with transaction.atomic():
+            cache.clear()
             super().save(*args, **kwargs)
 
             # Увеличиваем сумму сбора
@@ -174,3 +180,8 @@ class Payment(models.Model):
                     contributors_count=F('contributors_count') + 1,
                     updated_at=timezone.now()
                 )
+
+    def delete(self, *args, **kwargs):
+        """При удалении очищаем весь кэш"""
+        cache.clear()
+        super().delete(*args, **kwargs)
