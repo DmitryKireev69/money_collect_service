@@ -40,6 +40,10 @@ uv sync
 source venv/bin/activate # или venv\Scripts\activate на Windows
 cp .env.example .env
 в POSTGRES_HOST=db указать localhost
+
+Запуск celery локально
+celery -A collect_service.celery worker --loglevel=info -P solo
+
 python manage.py migrate
 python manage.py runserver
 
