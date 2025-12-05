@@ -6,10 +6,13 @@ while ! nc -z db 5432; do
 done
 echo "DB is ready!"
 
-python manage.py migrate --noinput
+# --- Запуск для Django ---
+if [ "$1" = "django" ]; then
+    echo "Running migrations..."
+    python manage.py migrate --noinput
 
-echo "Создание супер пользователя...."
-python manage.py shell <<EOF
+    echo "Creating superuser..."
+    python manage.py shell <<EOF
 import os
 from django.contrib.auth import get_user_model
 
@@ -24,4 +27,18 @@ if not User.objects.filter(username=username).exists():
 else:
     print("Superuser already exists.")
 EOF
-python manage.py runserver 0.0.0.0:8000
+
+    echo "Starting Django server..."
+    exec python manage.py runserver 0.0.0.0:8000
+
+# --- Запуск для Celery ---
+elif [ "$1" = "celery" ]; then
+    shift
+    echo "Starting Celery worker..."
+    exec celery -A collect_service worker "$@"
+
+# --- Любая другая команда ---
+else
+    echo "Unknown command, executing: $@"
+    exec "$@"
+fi
