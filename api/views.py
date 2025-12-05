@@ -6,7 +6,6 @@ from .serializers import (
     CollectSimpleSerializer,
     PaymentSimpleSerializer
 )
-from rest_framework.response import Response
 
 class CollectViewSet(viewsets.ModelViewSet):
     """
