@@ -76,4 +76,5 @@ python manage.py runserver
 Перезапуск проекта:
     docker compose restart
 Остановка проекта:
-    docker compose down```
+    docker compose down
+```
