@@ -60,6 +60,21 @@ services:
     volumes:
       - .:/app
 
+  maildev:
+    image: maildev/maildev
+    environment:
+      - TZ=Europe/Moscow
+      - MAILDEV_WEB_PORT=${MAILDEV_WEB_PORT}
+      - MAILDEV_SMTP_PORT=${MAILDEV_SMTP_PORT}
+    ports:
+      - "8080:1080"
+      - "1025:1025"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+
+
 volumes:
   postgres_data:
   static_volume:
