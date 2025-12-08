@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.core.cache import cache
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-from .tasks import send_email
+from .tasks import send_email_task
 
 import uuid
 
@@ -194,7 +194,7 @@ class Payment(models.Model):
 def send_collect_email(sender, instance, created, **kwargs):
     """Отправка email при создании сбора"""
     if created and instance.author.email:
-        send_email.delay(
+        send_email_task.delay(
             subject=f'Сбор "{instance.title}" создан',
             message=f'Ваш сбор "{instance.title}" успешно создан.',
             recipient=instance.author.email
@@ -207,7 +207,7 @@ def send_payment_email(sender, instance, created, **kwargs):
     if created:
         # Email донатеру
         if instance.user and instance.user.email:
-            send_email.delay(
+            send_email_task.delay(
                 subject=f'Платёж для сбора "{instance.collect.title}"',
                 message=f'Ваш платёж {instance.amount} руб. создан.',
                 recipient=instance.user.email
@@ -216,7 +216,7 @@ def send_payment_email(sender, instance, created, **kwargs):
         # Email автору сбора
         if instance.collect.author.email and instance.user != instance.collect.author:
             donor_name = instance.user.username if instance.user else 'Аноним'
-            send_email.delay(
+            send_email_task.delay(
                 subject=f'Новый платёж для сбора "{instance.collect.title}"',
                 message=f'{donor_name} перевел {instance.amount} руб.',
                 recipient=instance.collect.author.email
