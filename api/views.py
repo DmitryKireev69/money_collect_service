@@ -7,6 +7,7 @@ from .serializers import (
     PaymentSimpleSerializer
 )
 
+
 class CollectViewSet(viewsets.ModelViewSet):
     """
     ViewSet для работы с групповыми сборами

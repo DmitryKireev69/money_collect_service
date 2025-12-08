@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from celery import Celery
 from dotenv import load_dotenv
 
 load_dotenv()

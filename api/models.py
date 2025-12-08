@@ -1,3 +1,5 @@
+import uuid
+
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.contrib.auth.models import User
@@ -7,9 +9,6 @@ from django.core.cache import cache
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from .tasks import send_email_task
-
-import uuid
-
 
 
 class Collect(models.Model):
@@ -89,7 +88,7 @@ class Collect(models.Model):
         ]
 
     def __str__(self):
-       return self.title
+        return self.title
 
     def save(self, *args, **kwargs):
         """При сохранении очищаем весь кэш"""
@@ -107,8 +106,11 @@ class Payment(models.Model):
         YOOMONEY = 'yoomoney', 'ЮMoney'
         OTHER = 'other', 'Другое'
 
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4,editable=False, verbose_name='Идентификатор платежа')
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='Идентификатор платежа')
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

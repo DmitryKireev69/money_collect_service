@@ -5,6 +5,7 @@ from collect_service.celery import app
 
 log = logging.getLogger(__name__)
 
+
 @app.task
 def send_email_task(subject, message, recipient):
     """Задача отправки email"""
